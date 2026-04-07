@@ -59,7 +59,8 @@
     "three": "0.183.2",
     "tunnel-rat": "^0.1.2",
     "zod": "^4.3.6",
-    "zustand": "^5.0.11"
+    "zustand": "^5.0.11",
+    "resend": "^4.0.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.8",

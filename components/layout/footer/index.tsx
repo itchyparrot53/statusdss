@@ -1,29 +1,31 @@
-import Logo from '@/components/ui/darkroom.svg'
 import { Link } from '@/components/ui/link'
 
 export function Footer() {
   return (
-    <footer className="flex dt:flex-row flex-col dt:items-end items-center justify-between p-safe font-mono uppercase">
-      <Link
-        href="https://darkroom.engineering/"
-        className="link"
-        aria-label="Darkroom Engineering"
-      >
-        <Logo className="dr-w-148 text-secondary" aria-hidden="true" />
-      </Link>
-      <div>
+    <footer className="flex dt:flex-row flex-col items-center justify-between gap-4 border-[rgba(139,92,246,0.1)] border-t p-safe font-mono text-[10px] text-[rgba(255,255,255,0.2)] uppercase tracking-widest">
+      <span>© {new Date().getFullYear()} Aidan Munns</span>
+      <div className="flex items-center gap-6">
         <Link
-          href="https://github.com/darkroomengineering/satus/generate"
-          className="link"
+          href="https://github.com/itchyparrot53"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-[rgba(139,92,246,0.9)]"
         >
-          use this template
+          GitHub
         </Link>
-        {' / '}
         <Link
-          href="https://github.com/darkroomengineering/satus"
-          className="link"
+          href="https://www.linkedin.com/in/aidan-munns-359811139"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="transition-colors hover:text-[rgba(139,92,246,0.9)]"
         >
-          github
+          LinkedIn
+        </Link>
+        <Link
+          href="#contact"
+          className="transition-colors hover:text-[rgba(139,92,246,0.9)]"
+        >
+          Contact
         </Link>
       </div>
     </footer>

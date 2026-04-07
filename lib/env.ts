@@ -51,6 +51,10 @@ const envSchema = z.object({
   NEXT_PUBLIC_CLOUDFLARE_TURNSTILE_SITE_KEY: z.string().optional(),
   CLOUDFLARE_TURNSTILE_SECRET_KEY: z.string().optional(),
 
+  // Resend (Contact form)
+  RESEND_API_KEY: z.string().optional(),
+  CONTACT_EMAIL: z.string().optional(),
+
   // Analytics
   NEXT_PUBLIC_GOOGLE_ANALYTICS: z.string().optional(),
   NEXT_PUBLIC_GOOGLE_TAG_MANAGER_ID: z.string().optional(),
