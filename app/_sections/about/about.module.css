@@ -1,5 +1,5 @@
 .root {
-  padding: calc(var(--safe) * 4) var(--safe);
+  padding: calc(var(--safe) * 2) var(--safe);
   display: grid;
   grid-template-columns: 1fr;
   gap: 3rem;
@@ -37,10 +37,11 @@
 }
 
 .heading {
+  font-family: var(--font-display), sans-serif;
   font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
   color: #fff;
   margin-bottom: 2rem;
 }

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import s from './contact.module.css'
 
 interface FormState {
@@ -13,6 +14,17 @@ interface FormErrors {
   name?: string
   email?: string
   message?: string
+}
+
+interface VisitorMeta {
+  timeOnPageSeconds: number
+  userAgent: string
+  screenResolution: string
+  viewportSize: string
+  referrer: string
+  timezone: string
+  language: string
+  pageUrl: string
 }
 
 function validate(form: FormState): FormErrors {
@@ -38,9 +50,28 @@ export function Contact() {
     'idle' | 'loading' | 'success' | 'error'
   >('idle')
   const [statusMessage, setStatusMessage] = useState('')
+  const entryTime = useRef<number>(Date.now())
+
+  useEffect(() => {
+    entryTime.current = Date.now()
+  }, [])
+
+  function getVisitorMeta(): VisitorMeta {
+    const elapsed = Math.round((Date.now() - entryTime.current) / 1000)
+    return {
+      timeOnPageSeconds: elapsed,
+      userAgent: navigator.userAgent,
+      screenResolution: `${screen.width}×${screen.height}`,
+      viewportSize: `${window.innerWidth}×${window.innerHeight}`,
+      referrer: document.referrer || 'Direct / None',
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      language: navigator.language,
+      pageUrl: window.location.href,
+    }
+  }
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
@@ -49,7 +80,7 @@ export function Contact() {
     }
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     const newErrors = validate(form)
     if (Object.keys(newErrors).length > 0) {
@@ -62,7 +93,7 @@ export function Contact() {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, meta: getVisitorMeta() }),
       })
       const data: { success?: boolean; error?: string } = await res.json()
       if (res.ok && data.success) {

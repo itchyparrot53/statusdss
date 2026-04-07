@@ -1,19 +1,19 @@
 'use client'
 
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { useRef } from 'react'
+import { Canvas, useFrame } from '@react-three/fiber'
+import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-const NODE_COUNT = 120
-const CONNECTION_DISTANCE = 0.28
-const FIELD_SIZE = 2.5
+const NODE_COUNT = 150
+const CONNECTION_DISTANCE = 0.32
+const FIELD_SIZE = 2.8
 
 function generateNodes(count: number): Float32Array {
   const positions = new Float32Array(count * 3)
   for (let i = 0; i < count; i++) {
     positions[i * 3] = (Math.random() - 0.5) * FIELD_SIZE * 2
     positions[i * 3 + 1] = (Math.random() - 0.5) * FIELD_SIZE
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 1.2
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 1.5
   }
   return positions
 }
@@ -45,22 +45,21 @@ function buildConnections(
 
 const nodePositions = generateNodes(NODE_COUNT)
 const linePositions = buildConnections(nodePositions, NODE_COUNT)
+// First 20 nodes used for brighter accent points
+const accentPositions = nodePositions.slice(0, 20 * 3)
 
 function NetworkMesh() {
   const groupRef = useRef<THREE.Group>(null)
   const mouse = useRef({ x: 0, y: 0 })
 
-  useThree(({ gl }) => {
-    const canvas = gl.domElement
+  useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      mouse.current.x = (e.clientX / window.innerWidth - 0.5) * 0.3
-      mouse.current.y = -(e.clientY / window.innerHeight - 0.5) * 0.2
+      mouse.current.x = (e.clientX / window.innerWidth - 0.5) * 0.4
+      mouse.current.y = -(e.clientY / window.innerHeight - 0.5) * 0.25
     }
-    canvas.ownerDocument.addEventListener('mousemove', handleMouseMove)
-    return () => {
-      canvas.ownerDocument.removeEventListener('mousemove', handleMouseMove)
-    }
-  })
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [])
 
   useFrame(({ clock }) => {
     if (!groupRef.current) return
@@ -75,12 +74,12 @@ function NetworkMesh() {
       mouse.current.y,
       0.04
     )
-    groupRef.current.position.y = Math.sin(t * 0.3) * 0.03
+    groupRef.current.position.y = Math.sin(t * 0.3) * 0.04
   })
 
   return (
     <group ref={groupRef}>
-      {/* Nodes */}
+      {/* Main nodes */}
       <points>
         <bufferGeometry>
           <bufferAttribute
@@ -89,15 +88,15 @@ function NetworkMesh() {
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.012}
+          size={0.018}
           color="#8b5cf6"
           transparent
-          opacity={0.9}
+          opacity={0.85}
           sizeAttenuation
         />
       </points>
 
-      {/* Connections */}
+      {/* Connection lines */}
       <lineSegments>
         <bufferGeometry>
           <bufferAttribute
@@ -105,22 +104,22 @@ function NetworkMesh() {
             args={[linePositions, 3]}
           />
         </bufferGeometry>
-        <lineBasicMaterial color="#6d28d9" transparent opacity={0.25} />
+        <lineBasicMaterial color="#7c3aed" transparent opacity={0.3} />
       </lineSegments>
 
-      {/* Brighter accent nodes scattered through */}
+      {/* Bright accent nodes */}
       <points>
         <bufferGeometry>
           <bufferAttribute
             attach="attributes-position"
-            args={[nodePositions.slice(0, 18), 3]}
+            args={[accentPositions, 3]}
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.022}
-          color="#a78bfa"
+          size={0.03}
+          color="#c4b5fd"
           transparent
-          opacity={0.7}
+          opacity={0.9}
           sizeAttenuation
         />
       </points>
@@ -131,7 +130,7 @@ function NetworkMesh() {
 export function HeroScene() {
   return (
     <Canvas
-      camera={{ position: [0, 0, 1.6], fov: 60 }}
+      camera={{ position: [0, 0, 2.2], fov: 55 }}
       gl={{ antialias: true, alpha: true }}
       style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
     >

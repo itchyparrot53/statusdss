@@ -41,12 +41,12 @@ export function Header() {
 
       {/* Nav */}
       <nav aria-label="Main navigation">
-        <ul className="flex items-center dt:gap-8 gap-6">
+        <ul className="flex items-center" style={{ gap: '2rem' }}>
           {LINKS.map((link) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                className="font-mono text-[10px] text-[rgba(255,255,255,0.45)] uppercase tracking-widest transition-colors duration-200 hover:text-white"
+                className="font-mono text-[11px] text-[rgba(255,255,255,0.5)] uppercase tracking-[0.15em] transition-colors duration-200 hover:text-white"
               >
                 {link.label}
               </Link>
