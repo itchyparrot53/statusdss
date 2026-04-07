@@ -33,7 +33,6 @@
   padding: var(--safe);
   max-width: 900px;
   width: 100%;
-  padding-top: calc(var(--header-height) + 2rem);
 }
 
 .eyebrow {
@@ -67,6 +66,7 @@
 .subheading em {
   color: #8b5cf6;
   font-style: normal;
+  margin-right: 0.18em;
 }
 
 .body {
