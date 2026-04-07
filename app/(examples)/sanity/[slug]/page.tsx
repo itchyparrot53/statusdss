@@ -1,11 +1,14 @@
 import { notFound } from 'next/navigation'
 import { Wrapper } from '@/components/layout/wrapper'
+import { isSanityConfigured } from '@/lib/integrations/check-integration'
 import { client } from '@/integrations/sanity/client'
 import { sanityFetch } from '@/integrations/sanity/live'
 import { allArticlesQuery, articleQuery } from '@/integrations/sanity/queries'
 import type { Article } from '@/integrations/sanity/sanity.types'
 import { generateSanityMetadata } from '@/utils/metadata'
 import { SanityArticle } from './_components/article'
+
+export const dynamic = isSanityConfigured() ? 'auto' : 'force-dynamic'
 
 export async function generateStaticParams() {
   // Use client directly for build-time data fetching instead of sanityFetch

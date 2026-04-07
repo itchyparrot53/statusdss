@@ -21,7 +21,7 @@ const APP_DEFAULT_TITLE = 'Satūs'
 const APP_TITLE_TEMPLATE = '%s - Satūs'
 const APP_DESCRIPTION = AppData.description
 const APP_BASE_URL =
-  process.env.NEXT_PUBLIC_BASE_URL ?? 'https://localhost:3000'
+  process.env.NEXT_PUBLIC_BASE_URL || 'https://localhost:3000'
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_BASE_URL),
