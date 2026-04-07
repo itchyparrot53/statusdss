@@ -91,12 +91,19 @@ function buildEmailHtml(opts: {
 
   const timeOnPage = meta ? formatDuration(meta.timeOnPageSeconds) : 'N/A'
 
-  // Escape HTML special chars in message
-  const safeMessage = message
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/\n/g, '<br>')
+  // Sanitise user-supplied strings for safe HTML output
+  function escapeHtml(str: string): string {
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;')
+  }
+
+  const safeName = escapeHtml(name)
+  const safeEmail = escapeHtml(email)
+  const safeMessage = escapeHtml(message).replace(/\n/g, '<br>')
 
   const metaRow = (label: string, value: string) => `
     <tr>
@@ -109,7 +116,7 @@ function buildEmailHtml(opts: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New message from ${name}</title>
+  <title>New message from ${safeName}</title>
 </head>
 <body style="margin: 0; padding: 0; background: #06060d; font-family: ui-monospace, 'SF Mono', 'Fira Code', monospace; -webkit-font-smoothing: antialiased;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background: #06060d; padding: 40px 20px;">
@@ -145,7 +152,7 @@ function buildEmailHtml(opts: {
           <tr>
             <td style="padding-bottom: 32px;">
               <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #fff; letter-spacing: -0.02em; line-height: 1.1;">
-                ${name} got in touch
+                ${safeName} got in touch
               </h1>
             </td>
           </tr>
@@ -157,8 +164,8 @@ function buildEmailHtml(opts: {
                 <tr>
                   <td>
                     <table cellpadding="0" cellspacing="0">
-                      ${metaRow('Name', name)}
-                      ${metaRow('Email', `<a href="mailto:${email}" style="color: #8b5cf6; text-decoration: none;">${email}</a>`)}
+                      ${metaRow('Name', safeName)}
+                      ${metaRow('Email', `<a href="mailto:${safeEmail}" style="color: #8b5cf6; text-decoration: none;">${safeEmail}</a>`)}
                       ${metaRow('Sent at', submittedAt)}
                     </table>
                   </td>
@@ -216,9 +223,9 @@ function buildEmailHtml(opts: {
           <!-- Reply CTA -->
           <tr>
             <td style="padding-bottom: 40px;">
-              <a href="mailto:${email}?subject=Re: Your message&body=Hi ${name},%0A%0A"
+              <a href="mailto:${safeEmail}?subject=Re: Your message&body=Hi ${safeName},%0A%0A"
                 style="display: inline-block; padding: 12px 24px; background: #8b5cf6; color: #fff; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-radius: 4px; font-weight: 600;">
-                Reply to ${name} →
+                Reply to ${safeName} →
               </a>
             </td>
           </tr>
@@ -255,6 +262,8 @@ export async function POST(request: Request) {
     }
 
     const { name, email, message, meta } = parsed.data
+    // Strip newlines to prevent email header injection
+    const safeName = name.replace(/[\r\n]+/g, ' ').trim()
     const ip = getIp(request)
     const to = process.env.CONTACT_EMAIL ?? 'aidanmunns@gmail.com'
     const submittedAt = new Date().toLocaleString('en-GB', {
@@ -264,7 +273,7 @@ export async function POST(request: Request) {
     })
 
     const html = buildEmailHtml({
-      name,
+      name: safeName,
       email,
       message,
       ip,
@@ -276,9 +285,9 @@ export async function POST(request: Request) {
       from: 'Portfolio Contact <onboarding@resend.dev>',
       to,
       replyTo: email,
-      subject: `[Portfolio] New message from ${name}`,
+      subject: `[Portfolio] New message from ${safeName}`,
       text: [
-        `From: ${name} <${email}>`,
+        `From: ${safeName} <${email}>`,
         `Sent: ${submittedAt}`,
         `IP: ${ip}`,
         `Time on page: ${meta ? formatDuration(meta.timeOnPageSeconds) : 'N/A'}`,

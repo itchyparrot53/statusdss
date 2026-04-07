@@ -1,140 +1,150 @@
 'use client'
 
-import { Canvas, useFrame } from '@react-three/fiber'
 import { useEffect, useRef } from 'react'
-import * as THREE from 'three'
 
-const NODE_COUNT = 150
-const CONNECTION_DISTANCE = 0.32
-const FIELD_SIZE = 2.8
+const NODE_COUNT = 90
+const CONNECTION_DISTANCE = 160
+const SPEED = 0.25
 
-function generateNodes(count: number): Float32Array {
-  const positions = new Float32Array(count * 3)
-  for (let i = 0; i < count; i++) {
-    positions[i * 3] = (Math.random() - 0.5) * FIELD_SIZE * 2
-    positions[i * 3 + 1] = (Math.random() - 0.5) * FIELD_SIZE
-    positions[i * 3 + 2] = (Math.random() - 0.5) * 1.5
-  }
-  return positions
-}
-
-function buildConnections(
-  positions: Float32Array,
-  count: number
-): Float32Array {
-  const lines: number[] = []
-  for (let i = 0; i < count; i++) {
-    for (let j = i + 1; j < count; j++) {
-      const ax = positions[i * 3] ?? 0
-      const ay = positions[i * 3 + 1] ?? 0
-      const az = positions[i * 3 + 2] ?? 0
-      const bx = positions[j * 3] ?? 0
-      const by = positions[j * 3 + 1] ?? 0
-      const bz = positions[j * 3 + 2] ?? 0
-      const dx = ax - bx
-      const dy = ay - by
-      const dz = az - bz
-      const dist = Math.sqrt(dx * dx + dy * dy + dz * dz)
-      if (dist < CONNECTION_DISTANCE) {
-        lines.push(ax, ay, az, bx, by, bz)
-      }
-    }
-  }
-  return new Float32Array(lines)
-}
-
-const nodePositions = generateNodes(NODE_COUNT)
-const linePositions = buildConnections(nodePositions, NODE_COUNT)
-// First 20 nodes used for brighter accent points
-const accentPositions = nodePositions.slice(0, 20 * 3)
-
-function NetworkMesh() {
-  const groupRef = useRef<THREE.Group>(null)
-  const mouse = useRef({ x: 0, y: 0 })
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.current.x = (e.clientX / window.innerWidth - 0.5) * 0.4
-      mouse.current.y = -(e.clientY / window.innerHeight - 0.5) * 0.25
-    }
-    window.addEventListener('mousemove', handleMouseMove, { passive: true })
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
-
-  useFrame(({ clock }) => {
-    if (!groupRef.current) return
-    const t = clock.getElapsedTime()
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(
-      groupRef.current.rotation.y,
-      mouse.current.x,
-      0.04
-    )
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x,
-      mouse.current.y,
-      0.04
-    )
-    groupRef.current.position.y = Math.sin(t * 0.3) * 0.04
-  })
-
-  return (
-    <group ref={groupRef}>
-      {/* Main nodes */}
-      <points>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[nodePositions, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.018}
-          color="#8b5cf6"
-          transparent
-          opacity={0.85}
-          sizeAttenuation
-        />
-      </points>
-
-      {/* Connection lines */}
-      <lineSegments>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[linePositions, 3]}
-          />
-        </bufferGeometry>
-        <lineBasicMaterial color="#7c3aed" transparent opacity={0.3} />
-      </lineSegments>
-
-      {/* Bright accent nodes */}
-      <points>
-        <bufferGeometry>
-          <bufferAttribute
-            attach="attributes-position"
-            args={[accentPositions, 3]}
-          />
-        </bufferGeometry>
-        <pointsMaterial
-          size={0.03}
-          color="#c4b5fd"
-          transparent
-          opacity={0.9}
-          sizeAttenuation
-        />
-      </points>
-    </group>
-  )
+interface Particle {
+  x: number
+  y: number
+  vx: number
+  vy: number
+  r: number
 }
 
 export function HeroScene() {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const mouse = useRef({ x: 0, y: 0 })
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    // Keep non-null refs for use inside nested functions
+    const safeCtx = ctx
+    const safeCanvas = canvas
+
+    let width = 0
+    let height = 0
+    let rafId = 0
+    let particles: Particle[] = []
+
+    function initParticles() {
+      particles = Array.from({ length: NODE_COUNT }, () => ({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * SPEED,
+        vy: (Math.random() - 0.5) * SPEED,
+        r: Math.random() > 0.8 ? 2.5 : 1.5,
+      }))
+    }
+
+    function resize() {
+      const dpr = window.devicePixelRatio || 1
+      width = safeCanvas.offsetWidth
+      height = safeCanvas.offsetHeight
+      safeCanvas.width = width * dpr
+      safeCanvas.height = height * dpr
+      safeCtx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      initParticles()
+    }
+
+    function draw() {
+      safeCtx.clearRect(0, 0, width, height)
+
+      const ox = mouse.current.x * 18
+      const oy = mouse.current.y * 12
+
+      // Connections
+      for (let i = 0; i < particles.length; i++) {
+        const a = particles[i]
+        if (!a) continue
+        for (let j = i + 1; j < particles.length; j++) {
+          const b = particles[j]
+          if (!b) continue
+          const dx = a.x - b.x
+          const dy = a.y - b.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          if (dist < CONNECTION_DISTANCE) {
+            const alpha = (1 - dist / CONNECTION_DISTANCE) * 0.22
+            safeCtx.beginPath()
+            safeCtx.moveTo(a.x + ox, a.y + oy)
+            safeCtx.lineTo(b.x + ox, b.y + oy)
+            safeCtx.strokeStyle = `rgba(109,40,217,${alpha})`
+            safeCtx.lineWidth = 0.6
+            safeCtx.stroke()
+          }
+        }
+      }
+
+      // Nodes
+      for (const p of particles) {
+        p.x += p.vx
+        p.y += p.vy
+        if (p.x < 0 || p.x > width) p.vx *= -1
+        if (p.y < 0 || p.y > height) p.vy *= -1
+
+        safeCtx.beginPath()
+        safeCtx.arc(p.x + ox, p.y + oy, p.r, 0, Math.PI * 2)
+        const bright =
+          p.r > 2 ? 'rgba(196,181,253,0.9)' : 'rgba(139,92,246,0.75)'
+        safeCtx.fillStyle = bright
+        safeCtx.fill()
+
+        // Soft glow on larger nodes
+        if (p.r > 2) {
+          safeCtx.beginPath()
+          safeCtx.arc(p.x + ox, p.y + oy, p.r * 3, 0, Math.PI * 2)
+          const grad = safeCtx.createRadialGradient(
+            p.x + ox,
+            p.y + oy,
+            0,
+            p.x + ox,
+            p.y + oy,
+            p.r * 3
+          )
+          grad.addColorStop(0, 'rgba(139,92,246,0.18)')
+          grad.addColorStop(1, 'rgba(139,92,246,0)')
+          safeCtx.fillStyle = grad
+          safeCtx.fill()
+        }
+      }
+
+      rafId = requestAnimationFrame(draw)
+    }
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouse.current.x = e.clientX / window.innerWidth - 0.5
+      mouse.current.y = e.clientY / window.innerHeight - 0.5
+    }
+
+    const ro = new ResizeObserver(resize)
+    ro.observe(safeCanvas)
+    window.addEventListener('mousemove', onMouseMove, { passive: true })
+    resize()
+    draw()
+
+    return () => {
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('mousemove', onMouseMove)
+      ro.disconnect()
+    }
+  }, [])
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, 2.2], fov: 55 }}
-      gl={{ antialias: true, alpha: true }}
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
-    >
-      <NetworkMesh />
-    </Canvas>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        pointerEvents: 'none',
+      }}
+    />
   )
 }

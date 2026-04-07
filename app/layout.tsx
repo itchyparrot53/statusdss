@@ -16,10 +16,11 @@ import { fontsVariable } from '@/lib/styles/fonts'
 import AppData from '@/package.json'
 import '@/lib/styles/css/index.css'
 
-const APP_NAME = AppData.name
-const APP_DEFAULT_TITLE = 'Satūs'
-const APP_TITLE_TEMPLATE = '%s - Satūs'
-const APP_DESCRIPTION = AppData.description
+const APP_NAME = 'Aidan Munns'
+const APP_DEFAULT_TITLE = 'Aidan Munns — Security Engineer & Developer'
+const APP_TITLE_TEMPLATE = '%s | Aidan Munns'
+const APP_DESCRIPTION =
+  'CrowdStrike Technical Support Engineer based in the UK. Security professional who builds open-source tools on the side — including ListSync.'
 const APP_BASE_URL =
   process.env.NEXT_PUBLIC_BASE_URL || 'https://localhost:3000'
 
@@ -70,9 +71,7 @@ export const metadata: Metadata = {
     },
     description: APP_DESCRIPTION,
   },
-  authors: [
-    { name: 'darkroom.engineering', url: 'https://darkroom.engineering' },
-  ],
+  authors: [{ name: 'Aidan Munns', url: 'https://github.com/itchyparrot53' }],
   other: {
     'fb:app_id': process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '',
   },

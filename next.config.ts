@@ -105,6 +105,10 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 's.2ya.me',
+      },
+      {
+        protocol: 'https',
         hostname: 'assets.darkroom.engineering',
       },
       {
@@ -166,12 +170,6 @@ const nextConfig: NextConfig = {
       source: '/home',
       destination: '/',
       permanent: true,
-    },
-  ],
-  rewrites: async () => [
-    {
-      source: '/',
-      destination: '/home',
     },
   ],
 }

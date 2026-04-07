@@ -29,7 +29,6 @@ export function Projects() {
             alt="ListSync web dashboard"
             fill
             className={s.image}
-            unoptimized
           />
           <div className={s.imageBadge}>
             <span className={s.badge}>Open Source</span>
@@ -66,7 +65,7 @@ export function Projects() {
 
           <div className={s.cardActions}>
             <Link
-              href="https://github.com/Woahai321/list-sync"
+              href="https://github.com/itchyparrot53/list-sync"
               target="_blank"
               rel="noopener noreferrer"
               className={s.btnGhost}
