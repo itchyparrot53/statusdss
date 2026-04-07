@@ -2,6 +2,7 @@
 
 import type { ChangeEvent, FormEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
+import { Reveal } from '@/components/ui/reveal'
 import s from './contact.module.css'
 
 interface FormState {
@@ -114,89 +115,95 @@ export function Contact() {
 
   return (
     <section className={s.root} id="contact" aria-label="Contact">
-      <div>
-        <p className={s.label}>Contact</p>
-        <h2 className={s.heading}>Let&apos;s talk.</h2>
-        <p className={s.subtext}>
-          Got a project in mind? A security question? Want to collaborate on
-          something open-source? Drop me a message &mdash; I read everything.
-        </p>
-      </div>
-
-      <form className={s.form} onSubmit={handleSubmit} noValidate>
-        <div className={s.field}>
-          <label htmlFor="name" className={s.fieldLabel}>
-            Name
-          </label>
-          <input
-            id="name"
-            name="name"
-            type="text"
-            autoComplete="name"
-            placeholder="Your name"
-            value={form.name}
-            onChange={handleChange}
-            className={s.input}
-            disabled={status === 'loading'}
-          />
-          {errors.name && <span className={s.fieldError}>{errors.name}</span>}
+      <Reveal>
+        <div>
+          <p className={s.label}>Contact</p>
+          <h2 className={s.heading}>Let&apos;s talk.</h2>
+          <p className={s.subtext}>
+            Got a project in mind? A security question? Want to collaborate on
+            something open-source? Drop me a message &mdash; I read everything.
+          </p>
         </div>
+      </Reveal>
 
-        <div className={s.field}>
-          <label htmlFor="email" className={s.fieldLabel}>
-            Email
-          </label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="your@email.com"
-            value={form.email}
-            onChange={handleChange}
-            className={s.input}
-            disabled={status === 'loading'}
-          />
-          {errors.email && <span className={s.fieldError}>{errors.email}</span>}
-        </div>
+      <Reveal delay={120}>
+        <form className={s.form} onSubmit={handleSubmit} noValidate>
+          <div className={s.field}>
+            <label htmlFor="name" className={s.fieldLabel}>
+              Name
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              autoComplete="name"
+              placeholder="Your name"
+              value={form.name}
+              onChange={handleChange}
+              className={s.input}
+              disabled={status === 'loading'}
+            />
+            {errors.name && <span className={s.fieldError}>{errors.name}</span>}
+          </div>
 
-        <div className={s.field}>
-          <label htmlFor="message" className={s.fieldLabel}>
-            Message
-          </label>
-          <textarea
-            id="message"
-            name="message"
-            placeholder="What's on your mind?"
-            value={form.message}
-            onChange={handleChange}
-            className={s.textarea}
-            disabled={status === 'loading'}
-          />
-          {errors.message && (
-            <span className={s.fieldError}>{errors.message}</span>
+          <div className={s.field}>
+            <label htmlFor="email" className={s.fieldLabel}>
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="your@email.com"
+              value={form.email}
+              onChange={handleChange}
+              className={s.input}
+              disabled={status === 'loading'}
+            />
+            {errors.email && (
+              <span className={s.fieldError}>{errors.email}</span>
+            )}
+          </div>
+
+          <div className={s.field}>
+            <label htmlFor="message" className={s.fieldLabel}>
+              Message
+            </label>
+            <textarea
+              id="message"
+              name="message"
+              placeholder="What's on your mind?"
+              value={form.message}
+              onChange={handleChange}
+              className={s.textarea}
+              disabled={status === 'loading'}
+            />
+            {errors.message && (
+              <span className={s.fieldError}>{errors.message}</span>
+            )}
+          </div>
+
+          {status === 'success' && (
+            <div className={s.statusSuccess} role="status">
+              {statusMessage}
+            </div>
           )}
-        </div>
+          {status === 'error' && (
+            <div className={s.statusError} role="alert">
+              {statusMessage}
+            </div>
+          )}
 
-        {status === 'success' && (
-          <div className={s.statusSuccess} role="status">
-            {statusMessage}
-          </div>
-        )}
-        {status === 'error' && (
-          <div className={s.statusError} role="alert">
-            {statusMessage}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          className={s.submit}
-          disabled={status === 'loading'}
-        >
-          {status === 'loading' ? 'Sending...' : 'Send message →'}
-        </button>
-      </form>
+          <button
+            type="submit"
+            className={s.submit}
+            disabled={status === 'loading'}
+          >
+            {status === 'loading' ? 'Sending...' : 'Send message →'}
+          </button>
+        </form>
+      </Reveal>
     </section>
   )
 }

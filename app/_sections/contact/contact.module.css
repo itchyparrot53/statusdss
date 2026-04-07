@@ -17,7 +17,7 @@
 }
 
 .label {
-  font-family: monospace;
+  font-family: var(--font-display), monospace;
   font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -37,8 +37,8 @@
 }
 
 .heading {
-  font-family: var(--font-display), sans-serif;
-  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-family: var(--font-display), monospace;
+  font-size: clamp(2rem, 4vw, 3.2rem);
   font-weight: 700;
   line-height: 1.05;
   letter-spacing: -0.03em;

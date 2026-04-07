@@ -1,4 +1,4 @@
-import { Space_Grotesk } from 'next/font/google'
+import { Space_Mono } from 'next/font/google'
 import localFont from 'next/font/local'
 
 const mono = localFont({
@@ -23,9 +23,9 @@ const mono = localFont({
   ],
 })
 
-const display = Space_Grotesk({
+const display = Space_Mono({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700'],
+  weight: ['400', '700'],
   display: 'swap',
   variable: '--font-display',
   preload: true,
