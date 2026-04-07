@@ -73,7 +73,6 @@ const nextConfig: NextConfig = {
         ? { properties: ['^data-testid$'] }
         : false,
   },
-  cacheComponents: true,
   compress: true,
   logging: {
     fetches: {
